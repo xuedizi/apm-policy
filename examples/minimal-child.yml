@@ -1,0 +1,7 @@
+# 最简子策略:仅继承基线 + 再额外 deny 一项
+extends: xuedizi/apm-policy#v1.0.0
+
+primitives:
+  denied:
+    - mcp_server
+    - instruction

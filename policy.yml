@@ -1,0 +1,41 @@
+# xuedizi/apm-policy — Organization governance baseline.
+# Children extend with `tighten_only` semantics: they may further deny,
+# never relax. Update CHANGELOG.md when bumping VERSION + git tag.
+
+apiVersion: apm.policy/v1
+kind: RootPolicy
+metadata:
+  name: xuedizi-apm-policy
+  version: 1.0.0
+  maintainers:
+    - lcycrchao@gmail.com
+  effectiveDate: 2026-05-13
+
+inheritance:
+  mode: tighten_only
+
+mcp:
+  trust_boundary: deny_all
+  allowed_transports: []
+
+primitives:
+  allowed:
+    - skill
+    - agent
+    - command
+  denied:
+    - mcp_server
+    - instruction
+    - plugin
+
+constraints:
+  skill:
+    allowed_sources:
+      - xuedizi/*
+      - tnv-demo/*
+  agent:
+    allowed_sources:
+      - xuedizi/*
+  command:
+    allowed_sources:
+      - xuedizi/*

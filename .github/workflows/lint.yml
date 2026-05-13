@@ -1,0 +1,27 @@
+name: lint
+on:
+  pull_request:
+    paths: ['policy.yml', 'examples/**', 'VERSION', 'CHANGELOG.md']
+  push:
+    branches: [main]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install yq
+        run: sudo snap install yq || (sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && sudo chmod +x /usr/local/bin/yq)
+      - name: version coherence
+        run: |
+          VER=$(cat VERSION)
+          PVER=$(yq '.metadata.version' policy.yml)
+          [ "$VER" = "$PVER" ] || { echo "VERSION=$VER != policy.yml metadata.version=$PVER"; exit 1; }
+      - name: required fields present
+        run: |
+          for f in apiVersion kind metadata.name metadata.version inheritance.mode mcp.trust_boundary primitives; do
+            yq -e ".$f" policy.yml >/dev/null || { echo "missing: $f"; exit 1; }
+          done
+      - name: tighten_only mode
+        run: |
+          MODE=$(yq '.inheritance.mode' policy.yml)
+          [ "$MODE" = "tighten_only" ] || { echo "inheritance.mode must be tighten_only, got $MODE"; exit 1; }
